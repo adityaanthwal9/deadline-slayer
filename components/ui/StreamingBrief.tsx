@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function StreamingBrief({ autoStart = true }: Props) {
-  const { text, streaming, done, stream, reset } = useStream();
+  const { text, streaming, stream, reset } = useStream();
   const textRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
 

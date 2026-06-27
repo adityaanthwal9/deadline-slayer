@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function WatchdogStatus({ onCriticalDetected }: Props) {
-  const { lastResult, running, lastRan, totalActions, runWatchdog } = useWatchdog({
+  const { lastResult, running, lastRan, runWatchdog } = useWatchdog({
     intervalMs: 5 * 60 * 1000,
     onActions: (result) => {
       if (result.critical_count > 0) {

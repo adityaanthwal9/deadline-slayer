@@ -104,7 +104,7 @@ export interface AgentRunResult {
 // ============================================
 export async function runAgentLoop(
   tasks: Task[],
-  profile: UserProfile
+  _profile: UserProfile
 ): Promise<AgentRunResult> {
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-pro-latest',
@@ -195,7 +195,7 @@ Be decisive. Take action on every at-risk task. Do not just observe.`;
 // ============================================
 export async function parseNaturalLanguageTask(
   input: string,
-  profile: UserProfile
+  _profile: UserProfile
 ): Promise<{
   title: string;
   deadline: string | null;
@@ -240,7 +240,7 @@ Return ONLY valid JSON, no markdown:
 // ============================================
 export async function generateDeadlineDNA(
   allTasks: Task[],
-  profile: UserProfile
+  _profile: UserProfile
 ): Promise<{
   failure_patterns: Array<{ pattern: string; frequency: string; insight: string }>;
   underestimation_factor: number;
