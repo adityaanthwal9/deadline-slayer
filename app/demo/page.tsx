@@ -463,5 +463,3 @@ function TimeRemaining({ deadline }: { deadline: string }) {
     </div>
   );
 }
-ENDTSX
-echo "demo page done"
