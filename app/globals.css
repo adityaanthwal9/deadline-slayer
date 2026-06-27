@@ -242,3 +242,29 @@ input:focus, select:focus, textarea:focus {
   animation: swordSlash 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards,
              slashGlow 0.7s ease-out forwards;
 }
+
+/* ─── LIGHT MODE CARD FIX ──────────────────────────── */
+.light .ds-card {
+  background: #FFFFFF;
+  border-color: rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.light .glass {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(0,0,0,0.08);
+}
+.light .btn-ghost {
+  border-color: rgba(0,0,0,0.12);
+  color: #52526E;
+}
+.light .btn-ghost:hover {
+  background: rgba(0,0,0,0.04);
+  color: #0F0F1A;
+}
+.light aside {
+  background: #1A1A2E !important;
+}
+.light .grid-bg {
+  background-image: radial-gradient(circle, rgba(0,0,60,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}

@@ -38,7 +38,7 @@ const ThemeContext = createContext({ dark: true, toggle: () => {} });
 export const useTheme = () => useContext(ThemeContext);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(true); // always default dark
 
   const apply = (isDark: boolean) => {
     const vars = isDark ? DARK : LIGHT;
