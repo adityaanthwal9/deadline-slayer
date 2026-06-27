@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { Zap, Brain, Target, TrendingDown, Play, Command, ArrowRight } from 'lucide-react';
+import { ArrowRight, Shield, Activity, Clock } from 'lucide-react';
 
 export default async function Home() {
   const { userId } = await auth();
@@ -9,57 +9,106 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[#0A0A0F] grid-bg flex flex-col">
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5 glass sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="DS" className="w-10 h-10 rounded-lg object-cover sword-logo" /><span className="font-display font-bold text-lg tracking-tight">Deadline Slayer</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/demo" className="btn-ghost text-sm flex items-center gap-2">
-            <Play size={13} className="text-amber-400" />Live Demo
-          </Link>
-          <Link href="/sign-in" className="btn-ghost text-sm">Sign In</Link>
-          <Link href="/sign-up" className="btn-primary text-sm">Get Started Free</Link>
-        </div>
-      </nav>
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-8">
-          <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
-          Powered by Gemini 2.5 Pro · Vibe2Ship Hackathon
-        </div>
-        <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-[1.05] max-w-4xl mb-6 fade-slide-up">
-          Your AI Chief of Staff
-          <span className="block text-amber-400">Never Miss Again.</span>
-        </h1>
-        <p className="text-[#9898B0] text-lg md:text-xl max-w-2xl mb-10 leading-relaxed fade-slide-up">
-          Not a reminder app. Deadline Slayer{' '}
-          <strong className="text-white">predicts which commitments you will fail</strong>{' '}
-          before you fail them — and autonomously restructures your schedule to prevent it.
-        </p>
-        <div className="flex items-center gap-4 flex-wrap justify-center fade-slide-up">
-          <Link href="/demo" className="btn-primary text-base px-8 py-3.5 flex items-center gap-2">
-            <Play size={18} fill="black" />Try Live Demo — No Sign Up
-          </Link>
-          <Link href="/sign-up" className="btn-ghost text-base px-8 py-3.5 flex items-center gap-2">
-            Deploy Your AI Chief of Staff<ArrowRight size={16} />
-          </Link>
-        </div>
-        <p className="text-[#5C5C74] text-sm mt-4">Free to start · No credit card required</p>
-      </section>
-      <section className="border-t border-white/5 grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-white/5">
-        {[
-          { icon: <Brain size={20} className="text-amber-400" />, title: 'Risk Score Engine', desc: 'Every task gets a live failure probability. AI calculates time deficit vs your actual free hours.' },
-          { icon: <Target size={20} className="text-blue-400" />, title: 'JARVIS Daily Brief', desc: 'Voice-playback mission briefing every morning. One priority, ranked alerts, spoken aloud.' },
-          { icon: <TrendingDown size={20} className="text-red-400" />, title: 'Life Simulation', desc: "Act now vs delay — AI runs your future scenarios and shows exactly what you'll lose." },
-          { icon: <Command size={20} className="text-green-400" />, title: 'Command Palette', desc: 'Keyboard-first. ⌘K for instant actions. Voice input. Pomodoro focus mode. Zero friction.' },
-        ].map((f, i) => (
-          <div key={i} className="p-8 flex flex-col gap-3 hover:bg-white/[0.02] transition-colors">
-            <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center">{f.icon}</div>
+
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 glass border-b" style={{ borderColor: 'var(--border)' }}>
+        <div className="max-w-6xl mx-auto px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="DS" className="w-8 h-8 rounded-lg object-cover sword-logo" />
             <div>
-              <div className="font-display font-semibold text-white mb-1">{f.title}</div>
-              <div className="text-[#9898B0] text-sm leading-relaxed">{f.desc}</div>
+              <div className="font-display font-bold text-sm tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                DEADLINE <span style={{ color: 'var(--amber)' }}>SLAYER</span>
+              </div>
+              <div className="text-[9px] font-medium tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                KNOW YOUR NEXT MOVE
+              </div>
             </div>
           </div>
-        ))}
+          <div className="flex items-center gap-2">
+            <Link href="/demo" className="btn-ghost text-xs px-4 py-2">Live Demo</Link>
+            <Link href="/sign-in" className="btn-ghost text-xs px-4 py-2">Sign In</Link>
+            <Link href="/sign-up" className="btn-primary text-xs px-4 py-2">Get Started</Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="flex-1 flex flex-col items-center justify-center px-6 py-28 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-10"
+          style={{ background: 'var(--amber-dim)', border: '1px solid rgba(245,158,11,0.2)' }}>
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <span className="text-[11px] font-semibold text-amber-400 tracking-wider">Vibe2Ship Hackathon · Powered by Gemini 2.5 Pro</span>
+        </div>
+
+        {/* Headline */}
+        <h1 className="font-display font-bold leading-[0.95] tracking-tight mb-6 fade-up"
+          style={{ fontSize: 'clamp(52px, 8vw, 88px)', color: 'var(--text-primary)' }}>
+          Deadline Slayer
+          <span className="block" style={{ color: 'var(--amber)' }}>Know your next move.</span>
+        </h1>
+
+        {/* Subheadline */}
+        <p className="text-lg max-w-xl mx-auto mb-4 leading-relaxed fade-up"
+          style={{ color: 'var(--text-secondary)', animationDelay: '80ms' }}>
+          Predict what's at risk.<br />
+          Prioritize what matters.<br />
+          Execute with confidence.
+        </p>
+
+        <p className="text-sm mb-12 fade-up" style={{ color: 'var(--text-muted)', animationDelay: '120ms' }}>
+          Not a reminder app. An execution system.
+        </p>
+
+        {/* CTAs */}
+        <div className="flex items-center gap-3 fade-up" style={{ animationDelay: '160ms' }}>
+          <Link href="/demo" className="btn-primary px-8 py-3 text-sm flex items-center gap-2">
+            See it in action
+            <ArrowRight size={14} />
+          </Link>
+          <Link href="/sign-up" className="btn-ghost px-8 py-3 text-sm">
+            Start free
+          </Link>
+        </div>
+        <p className="text-xs mt-4 fade-up" style={{ color: 'var(--text-muted)', animationDelay: '200ms' }}>
+          Free to start · No credit card
+        </p>
+      </section>
+
+      {/* Feature strip */}
+      <section style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-6xl mx-auto grid grid-cols-3 divide-x" style={{ '--tw-divide-opacity': 1 } as React.CSSProperties}>
+          {[
+            {
+              icon: <Shield size={18} style={{ color: 'var(--amber)' }} />,
+              title: 'Risk Before It Happens',
+              desc: 'Every task gets a live failure probability based on your real free time — not guesses.',
+            },
+            {
+              icon: <Clock size={18} style={{ color: 'var(--blue)' }} />,
+              title: 'Simulate Your Future',
+              desc: 'Act now vs delay. See the exact probability difference before you decide.',
+            },
+            {
+              icon: <Activity size={18} style={{ color: 'var(--green)' }} />,
+              title: 'Adapt Autonomously',
+              desc: 'Background agent monitors, reschedules, and intervenes before deadlines are missed.',
+            },
+          ].map((f, i) => (
+            <div key={i} className="p-10" style={{ borderColor: 'var(--border)' }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-5"
+                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                {f.icon}
+              </div>
+              <h3 className="font-display font-semibold text-base mb-2" style={{ color: 'var(--text-primary)' }}>
+                {f.title}
+              </h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                {f.desc}
+              </p>
+            </div>
+          ))}
+        </div>
       </section>
     </main>
   );
