@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { Dna, RefreshCw, TrendingDown, AlertCircle, CheckCircle, Brain } from 'lucide-react';
 

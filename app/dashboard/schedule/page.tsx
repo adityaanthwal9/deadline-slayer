@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import type { ScheduleBlock } from '@/types';
 import { Calendar, Zap, CheckCircle } from 'lucide-react';

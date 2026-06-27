@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import type { NegotiationResult } from '@/types';
 import { MessageSquare, CheckCircle, Clock, ArrowRight, XCircle } from 'lucide-react';

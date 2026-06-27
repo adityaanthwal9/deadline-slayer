@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import type { Task, LifeSimulation } from '@/types';
 import { Shield, TrendingUp, TrendingDown, Zap, ChevronRight } from 'lucide-react';
