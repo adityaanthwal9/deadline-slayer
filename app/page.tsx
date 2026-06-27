@@ -11,9 +11,7 @@ export default async function Home() {
     <main className="min-h-screen bg-[#0A0A0F] grid-bg flex flex-col">
       <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5 glass sticky top-0 z-10">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center">
-            <Zap size={16} className="text-black" fill="black" />
-          </div>
+          <img src="/logo.png" alt="DS" className="w-7 h-7 rounded-lg object-cover" />
           <span className="font-display font-bold text-lg tracking-tight">Deadline Slayer</span>
         </div>
         <div className="flex items-center gap-3">
