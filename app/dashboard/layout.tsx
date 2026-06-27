@@ -30,7 +30,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <aside className="w-60 flex-shrink-0 border-r border-[var(--border)] flex flex-col glass">
         {/* Logo */}
         <div className="p-5 border-b border-[var(--border)]">
-          <Link href="/dashboard" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
               <Zap size={15} className="text-black" fill="black" />
             </div>
