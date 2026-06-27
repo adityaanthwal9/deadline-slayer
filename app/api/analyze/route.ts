@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import {
@@ -10,8 +9,7 @@ import {
 import type { Task } from '@/types';
 
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const { type, payload } = await req.json();
   const supabase = createServiceClient();

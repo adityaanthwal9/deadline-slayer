@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import { runAgentLoop } from '@/lib/gemini-functions';
@@ -8,8 +7,7 @@ import type { Task } from '@/types';
 // Called every 5 min by useWatchdog hook
 // AI uses Function Calling to decide which actions to take
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const supabase = createServiceClient();
 
@@ -112,8 +110,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/watchdog — get last watchdog run result
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const supabase = createServiceClient();
   const { data } = await supabase

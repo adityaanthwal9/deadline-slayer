@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import { analyzeTaskRisks } from '@/lib/gemini';
@@ -6,8 +5,7 @@ import type { Task } from '@/types';
 
 // GET /api/tasks - fetch all tasks for current user
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const supabase = createServiceClient();
   const { data: tasks, error } = await supabase
@@ -22,8 +20,7 @@ export async function GET() {
 
 // POST /api/tasks - create a task
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const body = await req.json();
   const supabase = createServiceClient();
@@ -44,8 +41,7 @@ export async function POST(req: NextRequest) {
 
 // PATCH /api/tasks - update a task
 export async function PATCH(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const body = await req.json();
   const { id, ...updates } = body;
@@ -65,8 +61,7 @@ export async function PATCH(req: NextRequest) {
 
 // DELETE /api/tasks
 export async function DELETE(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');

@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import { parseNaturalLanguageTask } from '@/lib/gemini-functions';
@@ -7,8 +6,7 @@ import { parseNaturalLanguageTask } from '@/lib/gemini-functions';
 // Input: { text: "Submit report by Sunday 5pm, takes 3 hours" }
 // Output: structured task object ready to insert
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const { text } = await req.json();
   if (!text?.trim()) return NextResponse.json({ error: 'No text provided' }, { status: 400 });

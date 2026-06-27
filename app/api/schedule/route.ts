@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import { generateOptimalSchedule } from '@/lib/gemini';
@@ -6,8 +5,7 @@ import type { Task } from '@/types';
 
 // POST /api/schedule - generate AI schedule for today
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const { fixed_events = [] } = await req.json();
   const supabase = createServiceClient();
@@ -72,8 +70,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/schedule - fetch today's schedule
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const supabase = createServiceClient();
   const todayStr = new Date().toISOString().split('T')[0];

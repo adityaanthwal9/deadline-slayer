@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import type { Task } from '@/types';
@@ -21,8 +20,7 @@ async function getGoogleAccessToken(refreshToken: string): Promise<string | null
 
 // POST /api/calendar — sync task deadlines to Google Calendar
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const { action, refresh_token, auth_code } = await req.json();
   const supabase = createServiceClient();
@@ -133,8 +131,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/calendar — get OAuth URL for connecting Google Calendar
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = 'demo-user';
 
   const params = new URLSearchParams({
     client_id:    process.env.GOOGLE_CLIENT_ID!,

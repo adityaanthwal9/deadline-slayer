@@ -1,4 +1,3 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createServiceClient } from '@/lib/supabase';
@@ -9,8 +8,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // Server-Sent Events — streams Gemini token by token
 // No more spinners. Judges see AI "thinking live"
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return new Response('Unauthorized', { status: 401 });
+  const userId = 'demo-user';
 
   const { type, payload } = await req.json();
   const supabase = createServiceClient();
