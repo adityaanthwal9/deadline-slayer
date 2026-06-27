@@ -187,10 +187,24 @@ export default function DemoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"/>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading your brief...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <img src="/logo.png" alt="DS" className="w-20 h-20 rounded-2xl object-cover sword-logo" />
+            <div className="absolute -inset-3 rounded-3xl border border-amber/20 animate-ping opacity-25" />
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <p className="font-display font-bold text-lg tracking-tight text-foreground">
+              DEADLINE <span className="text-amber">SLAYER</span>
+            </p>
+            <p className="text-2xs text-muted-foreground tracking-widest">LOADING YOUR BRIEF...</p>
+          </div>
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="w-1 h-1 rounded-full bg-amber"
+                style={{ animation: `pulse 1s ease-in-out ${i * 0.2}s infinite` }} />
+            ))}
+          </div>
         </div>
       </div>
     );
