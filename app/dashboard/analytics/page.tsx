@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { BarChart3, TrendingUp, Target, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import type { DailyStats, Task } from '@/types';
 import { useCountUp } from '@/hooks/useCountUp';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
-function KpiCard({ label, value, color, icon: Icon, suffix = '' }: {
-  label: string; value: number; color: string; icon: any; suffix?: string;
+function KpiCard({ label, value, color, suffix = '', children }: {
+  label: string; value: number; color: string; suffix?: string; children: React.ReactNode;
 }) {
   const animated = useCountUp(value, 800);
   return (
     <div className="ds-card ds-card-hover p-5 fade-slide-up">
       <div className="flex items-start justify-between mb-3">
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center`} style={{ background: `${color}20` }}>
-          <Icon size={16} style={{ color }} />
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${color}20` }}>
+          {children}
         </div>
       </div>
       <div className="font-display text-3xl font-bold tabular-nums" style={{ color }}>
         {animated}{suffix}
       </div>
-      <div className="text-xs text-[var(--text-secondary)] mt-1">{label}</div>
+      <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{label}</div>
     </div>
   );
 }
@@ -83,30 +83,34 @@ export default function AnalyticsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-5">
-      {/* Header */}
       <div className="flex items-center gap-3 fade-slide-up">
         <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
           <BarChart3 size={20} className="text-green-400" />
         </div>
         <div>
           <h1 className="font-display text-2xl font-bold">Analytics</h1>
-          <p className="text-[var(--text-secondary)] text-sm">Your productivity intelligence</p>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Your productivity intelligence</p>
         </div>
       </div>
 
-      {/* KPI cards */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Completion Rate"  value={completionRate} color="#10B981" icon={CheckCircle2} suffix="%" />
-        <KpiCard label="Tasks Completed"  value={completed}      color="#3B82F6" icon={Target} />
-        <KpiCard label="Avg Risk Score"   value={avgRisk}        color="#F59E0B" icon={TrendingUp} suffix="%" />
-        <KpiCard label="Critical Tasks"   value={criticalCount}  color="#EF4444" icon={AlertTriangle} />
+        <KpiCard label="Completion Rate" value={completionRate} color="#10B981" suffix="%">
+          <CheckCircle2 size={16} color="#10B981" />
+        </KpiCard>
+        <KpiCard label="Tasks Completed" value={completed} color="#3B82F6">
+          <Target size={16} color="#3B82F6" />
+        </KpiCard>
+        <KpiCard label="Avg Risk Score" value={avgRisk} color="#F59E0B" suffix="%">
+          <TrendingUp size={16} color="#F59E0B" />
+        </KpiCard>
+        <KpiCard label="Critical Tasks" value={criticalCount} color="#EF4444">
+          <AlertTriangle size={16} color="#EF4444" />
+        </KpiCard>
       </div>
 
-      {/* Charts row */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Productivity trend */}
-        <div className="ds-card p-5 fade-slide-up" style={{ animationDelay: '0.1s' }}>
-          <div className="text-xs text-[var(--text-muted)] font-medium tracking-wider mb-4">PRODUCTIVITY SCORE — 7 DAYS</div>
+        <div className="ds-card p-5 fade-slide-up">
+          <div className="text-xs font-medium tracking-wider mb-4" style={{ color: 'var(--text-muted)' }}>PRODUCTIVITY SCORE — 7 DAYS</div>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={trendData}>
               <defs>
@@ -124,9 +128,8 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Category breakdown */}
-        <div className="ds-card p-5 fade-slide-up" style={{ animationDelay: '0.15s' }}>
-          <div className="text-xs text-[var(--text-muted)] font-medium tracking-wider mb-4">TASKS BY CATEGORY</div>
+        <div className="ds-card p-5 fade-slide-up">
+          <div className="text-xs font-medium tracking-wider mb-4" style={{ color: 'var(--text-muted)' }}>TASKS BY CATEGORY</div>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={categoryData} barGap={2}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -140,9 +143,8 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Risk distribution */}
-      <div className="ds-card p-5 fade-slide-up" style={{ animationDelay: '0.2s' }}>
-        <div className="text-xs text-[var(--text-muted)] font-medium tracking-wider mb-5">RISK DISTRIBUTION</div>
+      <div className="ds-card p-5 fade-slide-up">
+        <div className="text-xs font-medium tracking-wider mb-5" style={{ color: 'var(--text-muted)' }}>RISK DISTRIBUTION</div>
         <div className="grid grid-cols-4 gap-6">
           {riskData.map(r => (
             <div key={r.name}>
@@ -151,12 +153,10 @@ export default function AnalyticsPage() {
                 <span className="font-display text-lg font-bold" style={{ color: r.color }}>{r.value}</span>
               </div>
               <div className="risk-bar h-1.5">
-                <div
-                  className="risk-bar-fill risk-bar-animated"
-                  style={{ width: total > 0 ? `${(r.value / total) * 100}%` : '0%', background: r.color }}
-                />
+                <div className="risk-bar-fill risk-bar-animated"
+                  style={{ width: total > 0 ? `${(r.value / total) * 100}%` : '0%', background: r.color }} />
               </div>
-              <div className="text-xs text-[var(--text-muted)] mt-1">
+              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 {total > 0 ? Math.round((r.value / total) * 100) : 0}% of tasks
               </div>
             </div>
@@ -164,20 +164,19 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Procrastination leaderboard */}
       {tasks.filter(t => t.procrastination_count > 0).length > 0 && (
-        <div className="ds-card p-5 fade-slide-up" style={{ animationDelay: '0.25s' }}>
-          <div className="text-xs text-[var(--text-muted)] font-medium tracking-wider mb-4">⚠ MOST DELAYED TASKS</div>
+        <div className="ds-card p-5 fade-slide-up">
+          <div className="text-xs font-medium tracking-wider mb-4" style={{ color: 'var(--text-muted)' }}>MOST DELAYED TASKS</div>
           <div className="space-y-2">
             {tasks.filter(t => t.procrastination_count > 0)
               .sort((a, b) => b.procrastination_count - a.procrastination_count)
               .slice(0, 4)
               .map((task, i) => (
-                <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg bg-[var(--bg-surface)]">
-                  <span className="text-xs text-[var(--text-muted)] w-4">#{i + 1}</span>
+                <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <span className="text-xs w-4" style={{ color: 'var(--text-muted)' }}>#{i + 1}</span>
                   <span className="text-sm flex-1 truncate">{task.title}</span>
                   <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full flex-shrink-0">
-                    Delayed {task.procrastination_count}×
+                    Delayed {task.procrastination_count}x
                   </span>
                   <span className="text-xs text-red-400 flex-shrink-0">{task.risk_score}% risk</span>
                 </div>
