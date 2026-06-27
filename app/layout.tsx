@@ -9,8 +9,15 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-displ
 
 export const metadata: Metadata = {
   title: 'Deadline Slayer AI | Your AI Chief of Staff',
-  description: 'AI predicts which commitments you will fail before you fail them.',
-  icons: { icon: '/favicon.ico' },
+  description: 'AI predicts which commitments you will fail before you fail them — and autonomously restructures your schedule to prevent it.',
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
