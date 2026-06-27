@@ -81,6 +81,9 @@ function TaskRow({ task, index, onFocus }: { task: Task; index: number; onFocus:
 }
 
 export default function DemoPage() {
+  useEffect(() => {
+    document.documentElement.classList.remove('light');
+  }, []);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [brief, setBrief] = useState<DailyBrief | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,9 +113,9 @@ export default function DemoPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] grid-bg">
+    <div className="min-h-screen bg-[#0A0A0F] grid-bg">
       {/* Demo banner */}
-      <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-2.5 flex items-center justify-between">
+      <div className="bg-[#0A0A0F] border-b border-amber-500/20 px-6 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-amber-400">
           <Zap size={12} fill="currentColor" />
           <span className="font-medium">DEMO MODE</span>
