@@ -100,6 +100,10 @@ export default function DemoPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    document.documentElement.classList.remove("light");
+  }, []);
+
   const pending = tasks.filter(t => t.status !== 'completed');
   const critical = tasks.filter(t => t.risk_level === 'critical' || t.risk_level === 'high');
 
