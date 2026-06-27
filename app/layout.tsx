@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+      <html lang="en" suppressHydrationWarning className={`${inter.variable} ${spaceGrotesk.variable}`}>
         <body className="antialiased" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
           <ThemeProvider>
             {children}

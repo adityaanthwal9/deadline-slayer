@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import { SignInButton, SignUpButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { Zap, Brain, Target, TrendingDown, Play, Command } from 'lucide-react';
+import { Zap, Brain, Target, TrendingDown, Play, Command, ArrowRight } from 'lucide-react';
 
 export default async function Home() {
   const { userId } = await auth();
@@ -10,36 +9,21 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[#0A0A0F] grid-bg flex flex-col">
-  <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5 glass sticky top-0 z-10">
-    <div className="flex items-center gap-2">
-      <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center">
-        <Zap size={16} className="text-black" fill="black" />
-      </div>
-      <span className="font-display font-bold text-lg tracking-tight">
-        Deadline Slayer
-      </span>
-    </div>
-
-    <div className="flex items-center gap-3">
-      <Link href="/demo" className="btn-ghost text-sm flex items-center gap-2">
-        <Play size={13} className="text-amber-400" />
-        Live Demo
-      </Link>
-
-      <SignInButton mode="modal">
-        <button className="btn-ghost text-sm">
-          Sign In
-        </button>
-      </SignInButton>
-
-      <SignUpButton mode="modal">
-        <button className="btn-primary text-sm">
-          Get Started Free
-        </button>
-      </SignUpButton>
-    </div>
-  </nav>
-
+      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5 glass sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center">
+            <Zap size={16} className="text-black" fill="black" />
+          </div>
+          <span className="font-display font-bold text-lg tracking-tight">Deadline Slayer</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/demo" className="btn-ghost text-sm flex items-center gap-2">
+            <Play size={13} className="text-amber-400" />Live Demo
+          </Link>
+          <Link href="/sign-in" className="btn-ghost text-sm">Sign In</Link>
+          <Link href="/sign-up" className="btn-primary text-sm">Get Started Free</Link>
+        </div>
+      </nav>
       <section className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-8">
           <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
@@ -56,18 +40,14 @@ export default async function Home() {
         </p>
         <div className="flex items-center gap-4 flex-wrap justify-center fade-slide-up">
           <Link href="/demo" className="btn-primary text-base px-8 py-3.5 flex items-center gap-2">
-            <Play size={18} fill="black" />
-            Try Live Demo — No Sign Up
+            <Play size={18} fill="black" />Try Live Demo — No Sign Up
           </Link>
-<SignUpButton mode="modal">
-            <button className="btn-ghost text-base px-8 py-3.5">
-              Deploy Your AI Chief of Staff
-            </button>
-          </SignUpButton>
+          <Link href="/sign-up" className="btn-ghost text-base px-8 py-3.5 flex items-center gap-2">
+            Deploy Your AI Chief of Staff<ArrowRight size={16} />
+          </Link>
         </div>
         <p className="text-[#5C5C74] text-sm mt-4">Free to start · No credit card required</p>
       </section>
-
       <section className="border-t border-white/5 grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-white/5">
         {[
           { icon: <Brain size={20} className="text-amber-400" />, title: 'Risk Score Engine', desc: 'Every task gets a live failure probability. AI calculates time deficit vs your actual free hours.' },
