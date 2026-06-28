@@ -12,33 +12,34 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard",           icon: LayoutDashboard, label: "Mission Control", shortcut: "1" },
-  { href: "/dashboard/tasks",     icon: ListTodo,        label: "Mission Queue", shortcut: "2" },
+  { href: "/dashboard",           icon: LayoutDashboard, label: "Mission Control",  shortcut: "1" },
+  { href: "/dashboard/tasks",     icon: ListTodo,        label: "Mission Queue",    shortcut: "2" },
   { href: "/dashboard/schedule",  icon: Calendar,        label: "Mission Timeline", shortcut: "3" },
-  { href: "/dashboard/simulate",  icon: Shield,          label: "Simulate",  shortcut: "4" },
-  { href: "/dashboard/negotiate", icon: MessageSquare,   label: "Negotiate", shortcut: "5" },
-  { href: "/dashboard/dna",       icon: Dna,             label: "Insights",  shortcut: "6", badge: "NEW" },
-  { href: "/dashboard/gcal",      icon: CalendarDays,    label: "Calendar",  shortcut: "7" },
-  { href: "/dashboard/analytics", icon: BarChart3,       label: "Performance", shortcut: "8" },
+  { href: "/dashboard/simulate",  icon: Shield,          label: "Simulate",         shortcut: "4" },
+  { href: "/dashboard/negotiate", icon: MessageSquare,   label: "Negotiate",        shortcut: "5" },
+  { href: "/dashboard/dna",       icon: Dna,             label: "Deadline DNA",     shortcut: "6", badge: "NEW" },
+  { href: "/dashboard/gcal",      icon: CalendarDays,    label: "Calendar",         shortcut: "7" },
+  { href: "/dashboard/analytics", icon: BarChart3,       label: "Performance",      shortcut: "8" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen dark" style={{ background: "#09090F" }}>
+    <div className="flex min-h-screen" style={{ background: "var(--bg-base)" }}>
 
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 flex flex-col" style={{
         background: "var(--bg-void)",
-        borderRight: "1px solid var(--border)",
+        borderRight: "1px solid var(--border-color)",
+        transition: "background 0.2s ease",
       }}>
 
         {/* Logo */}
-        <div className="px-5 py-5 border-b" style={{ borderColor: "var(--border)" }}>
+        <div className="px-5 py-5" style={{ borderBottom: "1px solid var(--border-color)" }}>
           <Link href="/" className="flex items-center gap-2.5 group">
             <img src="/logo.png" alt="DS" className="w-8 h-8 rounded-lg object-cover sword-logo flex-shrink-0" />
             <div>
               <div className="font-display font-bold text-sm tracking-tight leading-none" style={{ color: "var(--text-primary)" }}>
-                DEADLINE <span style={{ color: "var(--amber)" }}>SLAYER</span>
+                DEADLINE <span style={{ color: "var(--violet)" }}>SLAYER</span>
               </div>
               <div className="text-[9px] mt-0.5 font-medium tracking-widest" style={{ color: "var(--text-muted)" }}>
                 KNOW YOUR NEXT MOVE
@@ -50,18 +51,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Nav */}
         <SidebarNav items={navItems} />
 
+        {/* Gemini badge */}
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{
+            background: "var(--violet-soft)",
+            border: "1px solid var(--violet-border)",
+          }}>
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--violet-text)" }} />
+            <span className="text-[10px] font-semibold" style={{ color: "var(--violet-text)" }}>Gemini 2.5 Pro</span>
+          </div>
+        </div>
+
         {/* Footer */}
-        <div className="p-4 border-t mt-auto" style={{ borderColor: "var(--border)" }}>
-          <div className="mt-3 flex items-center gap-1.5 text-[10px]" style={{ color: "var(--text-muted)" }}>
-            <kbd className="px-1.5 py-0.5 rounded text-[9px]"
-              style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>K</kbd>
+        <div className="p-4 mt-auto" style={{ borderTop: "1px solid var(--border-color)" }}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-medium" style={{ color: "var(--text-muted)" }}>Appearance</span>
+            <ThemeToggle />
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--text-muted)" }}>
+            <kbd className="px-1.5 py-0.5 rounded text-[9px]" style={{
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border-color)",
+              color: "var(--text-muted)",
+            }}>K</kbd>
             <span>Command palette</span>
           </div>
         </div>
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-auto" style={{ background: "#09090F" }}>
+      <main className="flex-1 overflow-auto" style={{ background: "var(--bg-base)" }}>
         <PageTransition>{children}</PageTransition>
       </main>
     </div>
