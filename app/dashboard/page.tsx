@@ -16,23 +16,23 @@ import { useCountUp } from '@/hooks/useCountUp';
 import { useRealTimeRisk } from '@/hooks/useRealTimeRisk';
 import { format } from 'date-fns';
 
-// ── Design tokens — all CSS vars, theme-aware ─────────────────
+// ── Design tokens ─────────────────────────────────────────────
 const T = {
-  bg:         'var(--bg-base)',
-  card:       'var(--bg-card)',
-  cardHover:  'var(--bg-hover)',
-  surface:    'var(--bg-elevated)',
-  border:     'var(--border-color)',
-  borderHi:   'var(--border-strong)',
-  text:       'var(--text-primary)',
-  textSub:    'var(--text-secondary)',
-  textMuted:  'var(--text-muted)',
-  violet:     'var(--violet)',
-  violetSoft: 'var(--violet-soft)',
-  critical:   'var(--color-critical)',
-  high:       'var(--color-high)',
-  medium:     'var(--color-medium)',
-  low:        'var(--color-low)',
+  bg:        '#0B0B16',
+  card:      '#13131F',
+  cardHover: '#171726',
+  surface:   '#1C1C2E',
+  border:    'rgba(255,255,255,0.07)',
+  borderHi:  'rgba(139,92,246,0.3)',
+  text:      '#F0F0FA',
+  textSub:   '#94A3B8',
+  textMuted: '#4B5563',
+  violet:    '#7C3AED',
+  violetSoft:'rgba(124,58,237,0.12)',
+  critical:  '#EF4444',
+  high:      '#F97316',
+  medium:    '#F59E0B',
+  low:       '#10B981',
 };
 
 const riskColor = (s: number) => s >= 80 ? T.critical : s >= 60 ? T.high : s >= 30 ? T.medium : T.low;
