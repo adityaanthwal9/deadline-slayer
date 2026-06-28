@@ -104,10 +104,10 @@ export interface AgentRunResult {
 // ============================================
 export async function runAgentLoop(
   tasks: Task[],
-  _profile: UserProfile
+  profile: UserProfile
 ): Promise<AgentRunResult> {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-pro-latest',
+    model: 'gemini-2.5-pro',
     tools: [agentTools],
   });
 
@@ -195,7 +195,7 @@ Be decisive. Take action on every at-risk task. Do not just observe.`;
 // ============================================
 export async function parseNaturalLanguageTask(
   input: string,
-  _profile: UserProfile
+  profile: UserProfile
 ): Promise<{
   title: string;
   deadline: string | null;
@@ -204,7 +204,7 @@ export async function parseNaturalLanguageTask(
   priority: string;
   description: string;
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro-latest' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
   const now = new Date();
 
   const prompt = `Parse this natural language task input into a structured task. Today is ${now.toDateString()}, current time ${now.toLocaleTimeString()}.
@@ -240,7 +240,7 @@ Return ONLY valid JSON, no markdown:
 // ============================================
 export async function generateDeadlineDNA(
   allTasks: Task[],
-  _profile: UserProfile
+  profile: UserProfile
 ): Promise<{
   failure_patterns: Array<{ pattern: string; frequency: string; insight: string }>;
   underestimation_factor: number;
@@ -253,7 +253,7 @@ export async function generateDeadlineDNA(
   brutal_truth: string;
   top_recommendation: string;
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro-latest' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
 
   const completed = allTasks.filter(t => t.status === 'completed');
   const missed = allTasks.filter(t => {
