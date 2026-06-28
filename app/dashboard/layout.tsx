@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { SidebarNav } from "@/components/dashboard/SidebarNav";
 import { PageTransition } from "@/components/ui/PageTransition";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navItems = [
   { href: "/dashboard",           icon: LayoutDashboard, label: "Mission Control",  shortcut: "1" },
@@ -64,10 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Footer */}
         <div className="p-4 mt-auto" style={{ borderTop: "1px solid var(--border-color)" }}>
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-medium" style={{ color: "var(--text-muted)" }}>Appearance</span>
-            <ThemeToggle />
-          </div>
+
           <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--text-muted)" }}>
             <kbd className="px-1.5 py-0.5 rounded text-[9px]" style={{
               background: "var(--bg-elevated)",
