@@ -12,14 +12,14 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navItems = [
-  { href: "/dashboard",           icon: LayoutDashboard, label: "Overview",  shortcut: "1" },
-  { href: "/dashboard/tasks",     icon: ListTodo,        label: "Missions",  shortcut: "2" },
-  { href: "/dashboard/schedule",  icon: Calendar,        label: "Timeline",  shortcut: "3" },
+  { href: "/dashboard",           icon: LayoutDashboard, label: "Mission Control", shortcut: "1" },
+  { href: "/dashboard/tasks",     icon: ListTodo,        label: "Mission Queue", shortcut: "2" },
+  { href: "/dashboard/schedule",  icon: Calendar,        label: "Mission Timeline", shortcut: "3" },
   { href: "/dashboard/simulate",  icon: Shield,          label: "Simulate",  shortcut: "4" },
   { href: "/dashboard/negotiate", icon: MessageSquare,   label: "Negotiate", shortcut: "5" },
   { href: "/dashboard/dna",       icon: Dna,             label: "Insights",  shortcut: "6", badge: "NEW" },
   { href: "/dashboard/gcal",      icon: CalendarDays,    label: "Calendar",  shortcut: "7" },
-  { href: "/dashboard/analytics", icon: BarChart3,       label: "Analytics", shortcut: "8" },
+  { href: "/dashboard/analytics", icon: BarChart3,       label: "Performance", shortcut: "8" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
