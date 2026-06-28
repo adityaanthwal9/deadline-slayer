@@ -12,7 +12,7 @@ import type {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 function getModel() {
-  return genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  return genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { temperature: 1 } as any });
 }
 
 async function callGemini(prompt: string): Promise<string> {

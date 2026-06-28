@@ -204,7 +204,7 @@ export async function parseNaturalLanguageTask(
   priority: string;
   description: string;
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { temperature: 1 } as any });
   const now = new Date();
 
   const prompt = `Parse this natural language task input into a structured task. Today is ${now.toDateString()}, current time ${now.toLocaleTimeString()}.
@@ -253,7 +253,7 @@ export async function generateDeadlineDNA(
   brutal_truth: string;
   top_recommendation: string;
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { temperature: 1 } as any });
 
   const completed = allTasks.filter(t => t.status === 'completed');
   const missed = allTasks.filter(t => {
