@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Mic, ChevronRight, X } from 'lucide-react';
+import { Plus, Mic, X, ChevronRight, Search, Bell, Zap, Shield, Clock, Target, Activity } from 'lucide-react';
 import type { Task } from '@/types';
 import { AddTaskModal } from '@/components/dashboard/AddTaskModal';
 import { CommandPalette } from '@/components/ui/CommandPalette';
@@ -16,95 +16,158 @@ import { useCountUp } from '@/hooks/useCountUp';
 import { useRealTimeRisk } from '@/hooks/useRealTimeRisk';
 import { format } from 'date-fns';
 
-function RiskRing({ score }: { score: number }) {
-  const r = 17;
+// ── Design tokens ─────────────────────────────────────────────
+const T = {
+  bg:        '#0B0B16',
+  card:      '#13131F',
+  cardHover: '#171726',
+  surface:   '#1C1C2E',
+  border:    'rgba(255,255,255,0.07)',
+  borderHi:  'rgba(139,92,246,0.3)',
+  text:      '#F0F0FA',
+  textSub:   '#94A3B8',
+  textMuted: '#4B5563',
+  violet:    '#7C3AED',
+  violetSoft:'rgba(124,58,237,0.12)',
+  critical:  '#EF4444',
+  high:      '#F97316',
+  medium:    '#F59E0B',
+  low:       '#10B981',
+};
+
+const riskColor = (s: number) => s >= 80 ? T.critical : s >= 60 ? T.high : s >= 30 ? T.medium : T.low;
+const riskBg    = (l: string) => l === 'critical' ? 'rgba(239,68,68,0.1)' : l === 'high' ? 'rgba(249,115,22,0.1)' : l === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)';
+
+// ── Circular Risk Ring ─────────────────────────────────────────
+function RiskRing({ score, size = 44 }: { score: number; size?: number }) {
+  const r = (size / 2) - 5;
   const circ = 2 * Math.PI * r;
   const fill = (score / 100) * circ;
-  const color = score >= 80 ? '#EF4444' : score >= 60 ? '#F97316' : score >= 30 ? '#F59E0B' : '#10B981';
+  const color = riskColor(score);
   return (
-    <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: 42, height: 42 }}>
-      <svg width="42" height="42" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}>
-        <circle cx="21" cy="21" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
-        <circle cx="21" cy="21" r={r} fill="none" stroke={color} strokeWidth="3"
-          strokeDasharray={`${fill} ${circ}`} strokeLinecap="round"
-          style={{ transition: 'stroke-dasharray 1.2s cubic-bezier(0.22,1,0.36,1)' }} />
+    <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)', position: 'absolute' }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3.5" />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="3.5"
+          strokeDasharray={fill + ' ' + circ} strokeLinecap="round"
+          style={{ transition: 'stroke-dasharray 1s cubic-bezier(0.22,1,0.36,1)' }} />
       </svg>
-      <span style={{ fontSize: 8.5, fontWeight: 800, color, letterSpacing: '-0.5px', zIndex: 1 }}>{score}%</span>
+      <span style={{ fontSize: size > 50 ? 13 : 9, fontWeight: 800, color, letterSpacing: '-0.5px', zIndex: 1 }}>{score}%</span>
     </div>
   );
 }
 
+// ── Mission Card (right panel) ─────────────────────────────────
 function MissionCard({ task, onComplete, onFocus }: { task: Task; onComplete: () => void; onFocus: () => void }) {
   const { timeLeft, urgencyClass } = useRealTimeRisk(task.deadline, task.estimated_hours);
   const [showWhy, setShowWhy] = useState(false);
   const hoursLeft = task.deadline ? Math.max(0, (new Date(task.deadline).getTime() - Date.now()) / 3600000) : null;
-  const confidence = Math.max(5, 100 - task.risk_score);
-  const borderColor = task.risk_level === 'critical' ? 'rgba(239,68,68,0.25)' : task.risk_level === 'high' ? 'rgba(249,115,22,0.15)' : 'rgba(255,255,255,0.05)';
-  const levelColor = task.risk_level === 'critical' ? '#F87171' : task.risk_level === 'high' ? '#FB923C' : task.risk_level === 'medium' ? '#F59E0B' : '#34D399';
-  const levelBg = task.risk_level === 'critical' ? 'rgba(239,68,68,0.1)' : task.risk_level === 'high' ? 'rgba(249,115,22,0.1)' : task.risk_level === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)';
+  const conf = Math.max(5, 100 - task.risk_score);
+  const lc = riskColor(task.risk_score);
+
   return (
-    <div style={{ background: '#111827', border: `1px solid ${borderColor}`, borderRadius: 12, marginBottom: 8, overflow: 'hidden' }}>
-      <div className="p-3 flex items-start gap-3">
-        <button onClick={onComplete} className="w-4 h-4 rounded flex-shrink-0 mt-1 transition-all hover:border-green-400"
-          style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4 }} />
-        <div className="flex-1 min-w-0">
-          <div className="text-xs font-semibold mb-1.5 leading-snug" style={{ color: '#E2E8F0' }}>{task.title}</div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: levelBg, color: levelColor }}>{task.risk_level.toUpperCase()}</span>
-            <span className={`text-[10px] tabular-nums font-medium ${urgencyClass}`}>{timeLeft}</span>
+    <div style={{
+      background: T.card,
+      border: '1px solid ' + (task.risk_level === 'critical' ? 'rgba(239,68,68,0.22)' : T.border),
+      borderRadius: 14,
+      marginBottom: 8,
+      overflow: 'hidden',
+      transition: 'border-color 0.2s',
+    }}>
+      <div style={{ padding: '12px 12px 8px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          {/* Checkbox */}
+          <button onClick={onComplete} style={{
+            width: 16, height: 16, borderRadius: 4, border: '1px solid rgba(255,255,255,0.12)',
+            background: 'transparent', flexShrink: 0, marginTop: 2, cursor: 'pointer',
+          }} />
+
+          {/* Info */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 6, lineHeight: 1.4 }}>{task.title}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 100, fontWeight: 700,
+                background: riskBg(task.risk_level), color: lc }}>
+                {task.risk_level.toUpperCase()}
+              </span>
+              <span style={{ fontSize: 10, color: task.risk_level === 'critical' ? T.critical : T.textSub, fontWeight: 500 }}>{timeLeft}</span>
+            </div>
+            <div style={{ fontSize: 10, color: T.textMuted, marginTop: 5 }}>
+              {task.category?.charAt(0).toUpperCase()}{task.category?.slice(1)} · {task.estimated_hours}h est
+            </div>
           </div>
-          <div className="text-[10px] mt-1" style={{ color: '#374151' }}>{task.category?.charAt(0).toUpperCase()}{task.category?.slice(1)} · {task.estimated_hours}h est</div>
-        </div>
-        <div className="flex flex-col items-center gap-1">
-          <RiskRing score={task.risk_score} />
-          <button onClick={() => setShowWhy(!showWhy)} className="text-[9px] font-semibold transition-colors"
-            style={{ color: showWhy ? '#A78BFA' : '#4B5563' }}>{showWhy ? 'Close' : 'Why?'}</button>
+
+          {/* Ring + Why */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+            <RiskRing score={task.risk_score} size={44} />
+            <button onClick={() => setShowWhy(!showWhy)} style={{
+              fontSize: 9, fontWeight: 700, color: showWhy ? '#A78BFA' : T.textMuted,
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            }}>
+              {showWhy ? 'Close ↑' : 'Why? ↓'}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Why? Panel */}
       {showWhy && (
-        <div className="px-3 pb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: 10 }}>
-          <div className="text-[9px] font-bold tracking-widest mb-2" style={{ color: '#7C3AED' }}>
-            GEMINI 2.5 REASONING · {confidence}% CONFIDENCE
+        <div style={{ padding: '10px 12px 12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.08em', color: T.violet, marginBottom: 8 }}>
+            GEMINI 2.5 REASONING · {conf}% CONFIDENCE
           </div>
-          <div className="grid grid-cols-3 gap-1.5 mb-2">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
             {[
-              { label: 'Time Left', value: hoursLeft !== null ? `${Math.round(hoursLeft)}h` : 'No DL', ok: hoursLeft === null || hoursLeft >= task.estimated_hours },
-              { label: 'Need', value: `${task.estimated_hours}h`, ok: true },
-              { label: 'Delays', value: `${task.procrastination_count}x`, ok: task.procrastination_count === 0 },
+              { l: 'Time Left', v: hoursLeft !== null ? Math.round(hoursLeft) + 'h' : 'None', ok: hoursLeft === null || hoursLeft >= task.estimated_hours },
+              { l: 'Est. Need', v: task.estimated_hours + 'h', ok: true },
+              { l: 'Delays', v: task.procrastination_count + 'x', ok: task.procrastination_count === 0 },
             ].map((item, i) => (
-              <div key={i} className="text-center py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div className="text-[9px] mb-0.5" style={{ color: '#4B5563' }}>{item.label}</div>
-                <div className="text-[11px] font-bold" style={{ color: item.ok ? '#34D399' : '#F87171' }}>{item.value}</div>
+              <div key={i} style={{ textAlign: 'center', padding: '6px 4px', borderRadius: 8,
+                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ fontSize: 9, color: T.textMuted, marginBottom: 2 }}>{item.l}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: item.ok ? T.low : T.critical }}>{item.v}</div>
               </div>
             ))}
           </div>
           {task.ai_recommendation && (
-            <div className="text-[10px] leading-relaxed p-2 rounded-lg" style={{ background: 'rgba(124,58,237,0.06)', color: '#C4B5FD', border: '1px solid rgba(124,58,237,0.12)' }}>
+            <div style={{ fontSize: 10, lineHeight: 1.5, padding: '8px 10px', borderRadius: 8,
+              background: 'rgba(124,58,237,0.07)', color: '#C4B5FD', border: '1px solid rgba(124,58,237,0.14)' }}>
               ✦ {task.ai_recommendation}
             </div>
           )}
         </div>
       )}
-      <button onClick={onFocus} className="w-full py-1.5 text-[10px] font-medium transition-all hover:bg-violet-500/10 hover:text-violet-400"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.04)', color: '#4B5563', background: 'transparent' }}>
-        Enter Focus Mode
+
+      {/* Focus strip */}
+      <button onClick={onFocus} style={{
+        width: '100%', padding: '7px', fontSize: 10, fontWeight: 500, textAlign: 'center',
+        background: 'transparent', border: 'none', borderTop: '1px solid rgba(255,255,255,0.04)',
+        color: T.textMuted, cursor: 'pointer',
+      }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(124,58,237,0.07)'; (e.currentTarget as HTMLElement).style.color = '#A78BFA'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = T.textMuted; }}>
+        ⚡ Enter Focus Mode
       </button>
     </div>
   );
 }
 
-function StatCard({ label, value, color, icon, sublabel }: { label: string; value: number; color: string; icon: string; sublabel?: string }) {
-  const animated = useCountUp(value, 800);
+// ── Mini Stat ──────────────────────────────────────────────────
+function MiniStat({ icon, value, label, color }: { icon: string; value: number; label: string; color: string }) {
+  const animated = useCountUp(value, 900);
   return (
-    <div className="p-4 rounded-xl" style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <div className="text-base mb-2">{icon}</div>
-      <div className="font-display text-2xl font-bold tabular-nums" style={{ color }}>{animated}</div>
-      <div className="text-xs mt-0.5 font-medium" style={{ color: '#64748B' }}>{label}</div>
-      {sublabel && <div className="text-[10px] mt-0.5" style={{ color: '#374151' }}>{sublabel}</div>}
+    <div style={{ background: T.card, border: '1px solid ' + T.border, borderRadius: 12,
+      padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <span style={{ fontSize: 20 }}>{icon}</span>
+      <div>
+        <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>{animated}</div>
+        <div style={{ fontSize: 10, color: T.textMuted, marginTop: 3 }}>{label}</div>
+      </div>
     </div>
   );
 }
 
+// ── Voice Modal ────────────────────────────────────────────────
 function VoiceModal({ onClose, onAdd }: { onClose: () => void; onAdd: (t: string) => void }) {
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -119,26 +182,28 @@ function VoiceModal({ onClose, onAdd }: { onClose: () => void; onAdd: (t: string
     recRef.current = r; r.start();
   };
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-6">
-      <div className="w-full max-w-sm p-6 rounded-2xl" style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-display font-bold text-white">Voice Input</h3>
-          <button onClick={onClose} style={{ color: '#4B5563' }}><X size={18} /></button>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 24 }}>
+      <div style={{ background: T.card, border: '1px solid ' + T.border, borderRadius: 20, padding: 28, width: '100%', maxWidth: 360 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          <span style={{ fontWeight: 700, fontSize: 15, color: T.text }}>Voice Input</span>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: T.textMuted, cursor: 'pointer' }}><X size={18} /></button>
         </div>
-        <div className="flex flex-col items-center gap-5">
-          <button onClick={listening ? () => recRef.current?.stop() : start} className="w-20 h-20 rounded-full flex items-center justify-center"
-            style={{ background: listening ? 'rgba(239,68,68,0.15)' : 'rgba(124,58,237,0.15)', border: `2px solid ${listening ? '#EF4444' : 'rgba(124,58,237,0.4)'}` }}>
-            <Mic size={32} style={{ color: listening ? '#EF4444' : '#8B5CF6' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+          <button onClick={listening ? () => recRef.current?.stop() : start} style={{
+            width: 80, height: 80, borderRadius: '50%', border: '2px solid ' + (listening ? T.critical : 'rgba(124,58,237,0.5)'),
+            background: listening ? 'rgba(239,68,68,0.12)' : 'rgba(124,58,237,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Mic size={32} color={listening ? T.critical : '#8B5CF6'} />
           </button>
-          <div className="text-center min-h-[60px]">
-            {listening ? <div className="text-sm text-red-400">"{transcript || '...'}"</div>
-              : transcript ? <div className="text-sm text-white">"{transcript}"</div>
-              : <div className="text-sm" style={{ color: '#4B5563' }}>Tap and say your task</div>}
+          <div style={{ textAlign: 'center', minHeight: 60 }}>
+            {listening ? <span style={{ fontSize: 13, color: T.critical }}>"{transcript || '...'}"</span>
+              : transcript ? <span style={{ fontSize: 13, color: T.text }}>"{transcript}"</span>
+              : <span style={{ fontSize: 13, color: T.textMuted }}>Tap and say your task</span>}
           </div>
           {transcript && !listening && (
-            <div className="flex gap-3 w-full">
-              <button onClick={() => setTranscript('')} className="flex-1 py-2 rounded-lg text-sm" style={{ border: '1px solid rgba(255,255,255,0.08)', color: '#94A3B8' }}>Retry</button>
-              <button onClick={() => { onAdd(transcript); onClose(); }} className="flex-1 py-2 rounded-lg text-sm font-semibold" style={{ background: '#7C3AED', color: '#fff' }}>Add Mission</button>
+            <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+              <button onClick={() => setTranscript('')} style={{ flex: 1, padding: '10px', borderRadius: 10, background: 'none', border: '1px solid ' + T.border, color: T.textSub, cursor: 'pointer' }}>Retry</button>
+              <button onClick={() => { onAdd(transcript); onClose(); }} style={{ flex: 1, padding: '10px', borderRadius: 10, background: T.violet, border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Add Mission</button>
             </div>
           )}
         </div>
@@ -147,13 +212,14 @@ function VoiceModal({ onClose, onAdd }: { onClose: () => void; onAdd: (t: string
   );
 }
 
+// ── Main Dashboard ─────────────────────────────────────────────
 export default function DashboardPage() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks]           = useState<Task[]>([]);
+  const [loading, setLoading]       = useState(true);
   const [showAddTask, setShowAddTask] = useState(false);
-  const [showVoice, setShowVoice] = useState(false);
-  const [focusTask, setFocusTask] = useState<Task | null>(null);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'critical' | 'high'>('all');
+  const [showVoice, setShowVoice]   = useState(false);
+  const [focusTask, setFocusTask]   = useState<Task | null>(null);
+  const [filter, setFilter]         = useState<'all' | 'critical' | 'high' | 'completed'>('all');
 
   const fetchTasks = useCallback(async () => {
     const res = await fetch('/api/tasks');
@@ -162,8 +228,7 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    const init = async () => { setLoading(true); await fetchTasks(); setLoading(false); };
-    init();
+    (async () => { setLoading(true); await fetchTasks(); setLoading(false); })();
   }, [fetchTasks]);
 
   useEffect(() => {
@@ -176,14 +241,21 @@ export default function DashboardPage() {
     return () => window.removeEventListener('keydown', h);
   }, []);
 
-  const pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in_progress');
-  const criticalTasks = tasks.filter(t => t.risk_level === 'critical' || t.risk_level === 'high');
-  const completedToday = tasks.filter(t => t.completed_at && new Date(t.completed_at).toDateString() === new Date().toDateString());
-  const filteredRight = pendingTasks.filter(t => activeFilter === 'all' ? true : t.risk_level === activeFilter).sort((a, b) => b.risk_score - a.risk_score);
+  const pending   = tasks.filter(t => t.status === 'pending' || t.status === 'in_progress');
+  const completed = tasks.filter(t => t.status === 'completed');
+  const critical  = tasks.filter(t => t.risk_level === 'critical' || t.risk_level === 'high');
+  const doneToday = tasks.filter(t => t.completed_at && new Date(t.completed_at).toDateString() === new Date().toDateString());
+  const topTask   = [...pending].sort((a, b) => b.risk_score - a.risk_score)[0] || null;
+  const atRisk    = pending.filter(t => t.risk_level === 'critical' || t.risk_level === 'high');
+
+  const filteredRight = (filter === 'completed' ? completed
+    : filter === 'critical' ? pending.filter(t => t.risk_level === 'critical')
+    : filter === 'high'     ? pending.filter(t => t.risk_level === 'high')
+    : pending).sort((a, b) => b.risk_score - a.risk_score);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const successProb = pendingTasks.length === 0 ? 100 : Math.max(0, Math.round(100 - (pendingTasks.reduce((a, t) => a + t.risk_score, 0) / pendingTasks.length)));
+  const successProb = pending.length === 0 ? 100 : Math.max(0, Math.round(100 - (pending.reduce((a, t) => a + t.risk_score, 0) / pending.length)));
   const accentColors = ['#8B5CF6', '#3B82F6', '#F59E0B', '#10B981'];
 
   if (loading) return <DashboardSkeleton />;
@@ -197,113 +269,192 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#0B0F17' }}>
-      <CommandPalette onAddTask={() => setShowAddTask(true)} onRefreshBrief={() => {}} onVoiceInput={() => setShowVoice(true)} onFocusMode={() => pendingTasks[0] && setFocusTask(pendingTasks[0])} />
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: T.bg }}>
+      <CommandPalette onAddTask={() => setShowAddTask(true)} onRefreshBrief={() => {}}
+        onVoiceInput={() => setShowVoice(true)} onFocusMode={() => pending[0] && setFocusTask(pending[0])} />
       <RiskToasts tasks={tasks} />
 
-      {/* LEFT 70% */}
-      <div className="flex-1 overflow-auto p-6 space-y-4 min-w-0">
-        <div className="flex items-start justify-between">
+      {/* ═══ LEFT PANEL ═══════════════════════════════════════════ */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div className="text-[11px] font-medium mb-1" style={{ color: '#374151' }}>{format(new Date(), "EEEE, MMMM d")}</div>
-            <h1 className="font-display text-2xl font-bold" style={{ color: '#F1F5F9' }}>{greeting}, Commander.</h1>
-            <p className="text-sm mt-1" style={{ color: criticalTasks.length > 0 ? '#F87171' : '#4B5563' }}>
-              {criticalTasks.length > 0 ? `⚠ ${criticalTasks.length} mission${criticalTasks.length > 1 ? 's' : ''} need immediate attention` : 'All systems nominal. Keep executing.'}
+            <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 4 }}>{format(new Date(), "EEEE, MMMM d · h:mm a")}</div>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: T.text, margin: 0 }}>{greeting}, Commander. 👋</h1>
+            <p style={{ fontSize: 12, color: critical.length > 0 ? '#FCA5A5' : T.textMuted, margin: '4px 0 0' }}>
+              {critical.length > 0 ? '⚠ ' + critical.length + ' mission' + (critical.length > 1 ? 's' : '') + ' need immediate attention' : 'All systems nominal. Keep executing.'}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button onClick={() => setShowVoice(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: '#6B7280' }}>
-              <Mic size={12} /> Voice
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button onClick={() => setShowVoice(true)} style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10,
+              background: 'rgba(255,255,255,0.04)', border: '1px solid ' + T.border, color: '#9CA3AF',
+              fontSize: 12, fontWeight: 500, cursor: 'pointer',
+            }}>
+              <Mic size={13} /> Voice
             </button>
-            <button onClick={() => setShowAddTask(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-              style={{ background: '#7C3AED', color: '#fff', boxShadow: '0 0 24px rgba(124,58,237,0.3)' }}>
+            <button onClick={() => setShowAddTask(true)} style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10,
+              background: T.violet, border: 'none', color: '#fff', fontSize: 13, fontWeight: 700,
+              cursor: 'pointer', boxShadow: '0 0 28px rgba(124,58,237,0.35)',
+            }}>
               <Plus size={14} /> Add Mission
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
-          <div className="p-4 rounded-xl" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(139,92,246,0.06) 100%)', border: '1px solid rgba(139,92,246,0.22)' }}>
-            <div className="text-[9px] font-bold tracking-widest mb-2" style={{ color: '#7C3AED' }}>SUCCESS PROBABILITY</div>
-            <div className="font-display text-3xl font-bold" style={{ color: successProb >= 70 ? '#A78BFA' : successProb >= 40 ? '#F59E0B' : '#F87171' }}>{successProb}%</div>
-            <div className="text-[10px] mt-1" style={{ color: '#6B7280' }}>{successProb >= 70 ? 'On track to win' : successProb >= 40 ? 'Needs attention' : 'Critical — act now'}</div>
+        {/* ── 3 Featured Cards ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+
+          {/* Card 1: Mission Success Probability */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(109,40,217,0.08) 100%)',
+            border: '1px solid rgba(139,92,246,0.25)', borderRadius: 16, padding: 20,
+          }}>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: '#8B5CF6', marginBottom: 12 }}>MISSION SUCCESS PROBABILITY</div>
+            <div style={{ fontSize: 48, fontWeight: 900, lineHeight: 1, color: successProb >= 70 ? '#A78BFA' : successProb >= 40 ? T.medium : T.critical, marginBottom: 8 }}>
+              {successProb}%
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: '100%', height: 4, borderRadius: 100, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                <div style={{ width: successProb + '%', height: '100%', background: 'linear-gradient(90deg, #7C3AED, #A78BFA)', borderRadius: 100, transition: 'width 1s ease' }} />
+              </div>
+            </div>
+            <div style={{ fontSize: 10, color: '#6B7280', marginTop: 8 }}>
+              {successProb >= 70 ? "You're on track to crush your goals!" : successProb >= 40 ? 'Needs immediate attention' : 'Critical — take action now'}
+            </div>
           </div>
-          <StatCard label="Active Missions" value={pendingTasks.length} color="#F1F5F9" icon="⚡" />
-          <StatCard label="At Risk" value={criticalTasks.length} color="#F87171" icon="🔥" sublabel="need action now" />
-          <StatCard label="Done Today" value={completedToday.length} color="#34D399" icon="✓" sublabel="completed" />
+
+          {/* Card 2: Today's Focus */}
+          <div style={{ background: T.card, border: '1px solid ' + T.border, borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: T.textMuted, marginBottom: 12 }}>TODAY\'S FOCUS</div>
+            {topTask ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 100, fontWeight: 700,
+                    background: riskBg(topTask.risk_level), color: riskColor(topTask.risk_score) }}>
+                    {topTask.priority?.toUpperCase()}
+                  </span>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 6, lineHeight: 1.4 }}>{topTask.title}</div>
+                {topTask.deadline && (
+                  <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 12 }}>
+                    Deadline: {new Date(topTask.deadline).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                )}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 10, color: T.textMuted }}>Est. time left: {topTask.estimated_hours}h</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: riskColor(topTask.risk_score) }}>{topTask.risk_score}%</span>
+                  </div>
+                  <div style={{ height: 4, borderRadius: 100, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                    <div style={{ width: topTask.risk_score + '%', height: '100%', background: riskColor(topTask.risk_score), borderRadius: 100 }} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: 13, color: T.textMuted }}>No active missions. Press N to add one.</div>
+            )}
+          </div>
+
+          {/* Card 3: Tasks At Risk */}
+          <div style={{ background: T.card, border: '1px solid ' + T.border, borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', color: T.textMuted, marginBottom: 12 }}>TASKS AT RISK</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <RiskRing score={atRisk.length > 0 ? Math.round(atRisk.reduce((a,t)=>a+t.risk_score,0)/atRisk.length) : 0} size={80} />
+              <div style={{ fontSize: 24, fontWeight: 900, color: atRisk.length > 0 ? T.critical : T.low, marginTop: 8 }}>{atRisk.length}</div>
+              <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 8 }}>Need Attention</div>
+            </div>
+            <button onClick={() => setFilter('critical')} style={{
+              fontSize: 10, fontWeight: 700, color: '#A78BFA', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline',
+            }}>View All →</button>
+          </div>
         </div>
 
+        {/* ── Mini Stats Row ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+          <MiniStat icon="📋" value={tasks.length}         label="Total Tasks"   color={T.text} />
+          <MiniStat icon="✓"  value={doneToday.length}     label="Completed"     color={T.low} />
+          <MiniStat icon="⚠"  value={atRisk.length}        label="At Risk"       color={T.critical} />
+          <MiniStat icon="🔥" value={doneToday.length > 0 ? 1 : 0} label="Day Streak"  color={T.medium} />
+        </div>
+
+        {/* ── AI Brief ── */}
         <StreamingBrief autoStart />
+
+        {/* ── Watchdog ── */}
         <WatchdogStatus onCriticalDetected={() => fetchTasks()} />
 
-        <div className="rounded-xl overflow-hidden" style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            <span className="text-[10px] font-bold tracking-widest" style={{ color: '#374151' }}>TODAY'S MISSION QUEUE</span>
-            <a href="/dashboard/tasks" className="text-[10px] font-medium flex items-center gap-1 hover:text-violet-400 transition-colors" style={{ color: '#4B5563' }}>
-              View All <ChevronRight size={11} />
+        {/* ── Today's Schedule Mini ── */}
+        <div style={{ background: T.card, border: '1px solid ' + T.border, borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: T.textMuted }}>TODAY\'S SCHEDULE</span>
+            <a href="/dashboard/schedule" style={{ fontSize: 10, fontWeight: 600, color: '#8B5CF6', display: 'flex', alignItems: 'center', gap: 2, textDecoration: 'none' }}>
+              View Full Timeline <ChevronRight size={11} />
             </a>
           </div>
-          <div className="p-3 space-y-1.5">
-            {pendingTasks.slice(0, 4).map((task, i) => (
-              <div key={task.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all hover:bg-violet-500/5"
-                style={{ background: 'rgba(255,255,255,0.02)' }}>
-                <div className="w-0.5 h-7 rounded-full flex-shrink-0" style={{ background: accentColors[i % 4] }} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-medium truncate" style={{ color: '#D1D5DB' }}>{task.title}</div>
-                  <div className="text-[10px] mt-0.5" style={{ color: '#374151' }}>{task.estimated_hours}h · {task.category}</div>
+          <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {pending.slice(0, 4).map((task, i) => (
+              <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 10px', borderRadius: 10,
+                background: 'rgba(255,255,255,0.02)', cursor: 'pointer', transition: 'background 0.15s' }}>
+                <div style={{ width: 3, height: 28, borderRadius: 100, background: accentColors[i % 4], flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#D1D5DB', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</div>
+                  <div style={{ fontSize: 10, color: T.textMuted, marginTop: 1 }}>{task.estimated_hours}h · {task.category}</div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                  style={{ background: task.risk_score >= 70 ? 'rgba(239,68,68,0.1)' : task.risk_score >= 40 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)', color: task.risk_score >= 70 ? '#F87171' : task.risk_score >= 40 ? '#F59E0B' : '#34D399' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 100,
+                  background: task.risk_score >= 70 ? 'rgba(239,68,68,0.1)' : task.risk_score >= 40 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)',
+                  color: task.risk_score >= 70 ? T.critical : task.risk_score >= 40 ? T.medium : T.low }}>
                   {task.risk_score}%
                 </span>
               </div>
             ))}
-            {pendingTasks.length === 0 && <div className="text-center py-6 text-sm" style={{ color: '#374151' }}>No active missions · Press N to add one</div>}
+            {pending.length === 0 && <div style={{ textAlign: 'center', padding: '16px', fontSize: 12, color: T.textMuted }}>No missions scheduled</div>}
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {[['⌘K', 'Palette'], ['N', 'New'], ['V', 'Voice']].map(([k, l]) => (
-            <div key={k} className="flex items-center gap-1 text-[10px]">
-              <kbd className="px-1.5 py-0.5 rounded text-[9px]" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: '#374151' }}>{k}</kbd>
-              <span style={{ color: '#1F2937' }}>{l}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
-      {/* RIGHT 30% */}
-      <div className="w-72 flex-shrink-0 flex flex-col" style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', background: '#0D1117' }}>
-        <div className="p-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-display font-bold text-sm" style={{ color: '#E2E8F0' }}>Risk Queue</span>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full"
-              style={{ background: criticalTasks.length > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${criticalTasks.length > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }}>
-              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: criticalTasks.length > 0 ? '#EF4444' : '#10B981' }} />
-              <span className="text-[10px] font-bold" style={{ color: criticalTasks.length > 0 ? '#F87171' : '#34D399' }}>{criticalTasks.length} critical</span>
-            </div>
+      {/* ═══ RIGHT PANEL ══════════════════════════════════════════ */}
+      <div style={{ width: 320, flexShrink: 0, display: 'flex', flexDirection: 'column',
+        borderLeft: '1px solid rgba(255,255,255,0.05)', background: '#0F0F1A', overflow: 'hidden' }}>
+
+        {/* Panel header */}
+        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: T.text }}>Mission Queue</span>
+            <span style={{ fontSize: 10, color: T.textMuted }}>Sort by Risk ↓</span>
           </div>
-          <div className="grid grid-cols-3 gap-1">
-            {(['all', 'critical', 'high'] as const).map(f => {
-              const active = activeFilter === f;
-              const ac = f === 'critical' ? '#F87171' : f === 'high' ? '#FB923C' : '#A78BFA';
-              const ab = f === 'critical' ? 'rgba(239,68,68,0.12)' : f === 'high' ? 'rgba(249,115,22,0.12)' : 'rgba(139,92,246,0.12)';
-              return (
-                <button key={f} onClick={() => setActiveFilter(f)} className="py-1.5 rounded-lg text-[10px] font-bold capitalize transition-all"
-                  style={{ background: active ? ab : 'transparent', color: active ? ac : '#374151', border: `1px solid ${active ? (f === 'critical' ? 'rgba(239,68,68,0.25)' : f === 'high' ? 'rgba(249,115,22,0.25)' : 'rgba(139,92,246,0.25)') : 'transparent'}` }}>
-                  {f === 'all' ? `All (${pendingTasks.length})` : f === 'critical' ? '🔴 Critical' : '🟠 High'}
-                </button>
-              );
-            })}
+
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
+            {[
+              { key: 'all',       label: 'All (' + tasks.length + ')',            color: '#8B5CF6' },
+              { key: 'critical',  label: 'At Risk (' + atRisk.length + ')',       color: T.critical },
+              { key: 'high',      label: 'High (' + pending.filter(t=>t.risk_level==='high').length + ')', color: T.high },
+              { key: 'completed', label: 'Done (' + doneToday.length + ')',       color: T.low },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setFilter(tab.key as any)}
+                style={{
+                  padding: '5px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                  whiteSpace: 'nowrap', border: '1px solid transparent',
+                  background: filter === tab.key ? 'rgba(139,92,246,0.12)' : 'transparent',
+                  color: filter === tab.key ? tab.color : T.textMuted,
+                  borderColor: filter === tab.key ? 'rgba(139,92,246,0.25)' : 'transparent',
+                }}>
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-3">
+        {/* Task list */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
           {filteredRight.length === 0 ? (
-            <div className="text-center py-16" style={{ color: '#1F2937' }}>
-              <div className="text-3xl mb-3">✓</div>
-              <div className="text-sm">No {activeFilter !== 'all' ? activeFilter : ''} missions</div>
+            <div style={{ textAlign: 'center', padding: '48px 16px', color: T.textMuted }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>✓</div>
+              <div style={{ fontSize: 13 }}>No {filter !== 'all' ? filter : ''} missions</div>
             </div>
           ) : (
             filteredRight.map(task => (
@@ -318,11 +469,13 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-          <div className="text-[9px] text-center" style={{ color: '#1F2937' }}>Sorted by risk · Live · Gemini 2.5 Pro</div>
+        {/* Footer */}
+        <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
+          <span style={{ fontSize: 9, color: '#1F2937' }}>Live countdowns · Sorted by risk · Gemini 2.5 Pro</span>
         </div>
       </div>
 
+      {/* Modals */}
       {showAddTask && (
         <AddTaskModal onClose={() => setShowAddTask(false)}
           onAdd={async (taskData) => {
@@ -330,7 +483,7 @@ export default function DashboardPage() {
             setShowAddTask(false); await fetchTasks();
           }} />
       )}
-      {showVoice && <VoiceModal onClose={() => setShowVoice(false)} onAdd={(title) => { setShowVoice(false); setShowAddTask(true); }} />}
+      {showVoice && <VoiceModal onClose={() => setShowVoice(false)} onAdd={(_title) => { setShowVoice(false); setShowAddTask(true); }} />}
     </div>
   );
 }
