@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { SidebarNav } from "@/components/dashboard/SidebarNav";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navItems = [
   { href: "/dashboard",           icon: LayoutDashboard, label: "Overview",  shortcut: "1" },

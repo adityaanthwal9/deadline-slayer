@@ -44,81 +44,145 @@ function TaskRow({
   onFocus: () => void;
 }) {
   const { timeLeft, urgencyClass } = useRealTimeRisk(task.deadline, task.estimated_hours);
+  const [showWhy, setShowWhy] = useState(false);
+
+  const hoursLeft = task.deadline
+    ? Math.max(0, (new Date(task.deadline).getTime() - Date.now()) / 3600000)
+    : null;
+  const timeDeficit = hoursLeft !== null ? hoursLeft - task.estimated_hours : null;
+  const confidence = Math.max(5, 100 - task.risk_score);
 
   return (
     <div
-      className={`ds-card ds-card-hover p-4 flex items-center gap-4 fade-slide-up ${
-        task.risk_level === 'critical' ? 'glow-red' : ''
-      }`}
+      className={`ds-card ds-card-hover fade-slide-up ${task.risk_level === 'critical' ? 'glow-red' : ''}`}
       style={{ animationDelay: `${index * 0.06}s` }}
     >
-      {/* Complete */}
-      <button
-        onClick={onComplete}
-        className="w-5 h-5 rounded border border-[var(--border-hover)] hover:border-green-400 hover:bg-green-400/10 flex-shrink-0 transition-all"
-        title="Mark complete"
-      />
+      <div className="p-4 flex items-center gap-4">
+        {/* Complete */}
+        <button
+          onClick={onComplete}
+          className="w-5 h-5 rounded border border-[var(--border-hover)] hover:border-green-400 hover:bg-green-400/10 flex-shrink-0 transition-all"
+          title="Mark complete"
+        />
 
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium text-sm truncate">{task.title}</span>
-          {task.risk_level === 'critical' && (
-            <span className="text-[10px] text-red-400 font-bold tracking-wider flex-shrink-0 pulse-critical">
-              ⚠ CRITICAL
-            </span>
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium text-sm truncate">{task.title}</span>
+            {task.risk_level === 'critical' && (
+              <span className="text-[10px] text-red-400 font-bold tracking-wider flex-shrink-0">
+                ⚠ CRITICAL
+              </span>
+            )}
+          </div>
+          {task.ai_recommendation && (
+            <div className="text-xs text-amber-400/80 mt-0.5 truncate">
+              ✦ {task.ai_recommendation}
+            </div>
           )}
         </div>
-        {task.ai_recommendation && (
-          <div className="text-xs text-amber-400/80 mt-0.5 truncate">
-            ✦ {task.ai_recommendation}
+
+        {/* Real-time deadline */}
+        {task.deadline && (
+          <div className={`text-xs flex-shrink-0 tabular-nums ${urgencyClass}`}>
+            {timeLeft}
           </div>
         )}
+
+        {/* Risk */}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="w-20">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-[var(--text-muted)]">Risk</span>
+              <span className="text-xs font-medium">{task.risk_score}%</span>
+            </div>
+            <div className="risk-bar">
+              <div
+                className="risk-bar-fill"
+                style={{
+                  width: `${task.risk_score}%`,
+                  background:
+                    task.risk_score >= 80 ? '#EF4444' :
+                    task.risk_score >= 60 ? '#F97316' :
+                    task.risk_score >= 30 ? '#F59E0B' : '#10B981',
+                }}
+              />
+            </div>
+          </div>
+          <RiskBadge level={task.risk_level} />
+        </div>
+
+        {/* Est */}
+        <div className="text-xs text-[var(--text-muted)] flex-shrink-0 w-12 text-right">
+          {task.estimated_hours}h
+        </div>
+
+        {/* Why button */}
+        <button
+          onClick={() => setShowWhy(!showWhy)}
+          title="Gemini reasoning"
+          className={`text-[10px] font-semibold px-2 py-1 rounded-md border transition-all flex-shrink-0 ${
+            showWhy
+              ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+              : 'bg-transparent border-border text-muted-foreground hover:border-amber-500/30 hover:text-amber-400'
+          }`}
+        >
+          Why?
+        </button>
+
+        {/* Focus */}
+        <button
+          onClick={onFocus}
+          title="Enter focus mode"
+          className="w-7 h-7 rounded-lg bg-[var(--bg-elevated)] hover:bg-amber-500/10 hover:text-amber-400 text-[var(--text-muted)] flex items-center justify-center transition-all flex-shrink-0"
+        >
+          <Target size={13} />
+        </button>
       </div>
 
-      {/* Real-time deadline */}
-      {task.deadline && (
-        <div className={`text-xs flex-shrink-0 tabular-nums ${urgencyClass}`}>
-          {timeLeft}
+      {/* Gemini Reasoning Panel */}
+      {showWhy && (
+        <div className="border-t border-border/60 px-4 py-3 bg-amber-500/3">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[10px] font-bold tracking-widest text-amber-400/70">GEMINI 2.5 REASONING</span>
+            <span className="text-[10px] text-muted-foreground border border-border rounded-full px-1.5 py-0.5">
+              Confidence: {confidence}%
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="bg-card rounded-lg p-2.5 border border-border">
+              <div className="text-[10px] text-muted-foreground mb-1">Time Left</div>
+              <div className={`text-sm font-bold ${hoursLeft !== null && hoursLeft < task.estimated_hours ? 'text-red-400' : 'text-green-400'}`}>
+                {hoursLeft !== null ? `${Math.round(hoursLeft)}h` : 'No deadline'}
+              </div>
+              <div className="text-[10px] text-muted-foreground">need {task.estimated_hours}h</div>
+            </div>
+            <div className="bg-card rounded-lg p-2.5 border border-border">
+              <div className="text-[10px] text-muted-foreground mb-1">Time Deficit</div>
+              <div className={`text-sm font-bold ${timeDeficit !== null && timeDeficit < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                {timeDeficit !== null ? (timeDeficit < 0 ? `${Math.abs(Math.round(timeDeficit))}h short` : `${Math.round(timeDeficit)}h buffer`) : '—'}
+              </div>
+              <div className="text-[10px] text-muted-foreground">buffer remaining</div>
+            </div>
+            <div className="bg-card rounded-lg p-2.5 border border-border">
+              <div className="text-[10px] text-muted-foreground mb-1">Delays</div>
+              <div className={`text-sm font-bold ${task.procrastination_count > 2 ? 'text-red-400' : task.procrastination_count > 0 ? 'text-amber-400' : 'text-green-400'}`}>
+                {task.procrastination_count}x
+              </div>
+              <div className="text-[10px] text-muted-foreground">procrastinated</div>
+            </div>
+          </div>
+          {task.ai_recommendation && (
+            <div className="flex items-start gap-2 bg-amber-500/8 border border-amber-500/20 rounded-lg px-3 py-2">
+              <span className="text-amber-400 text-xs mt-0.5 flex-shrink-0">✦</span>
+              <p className="text-xs text-amber-200/80 leading-relaxed">{task.ai_recommendation}</p>
+            </div>
+          )}
+          <div className="mt-2 text-[10px] text-muted-foreground/60">
+            Analyzed by Gemini 2.5 · Function calling · Risk score computed from deadline gap, delay history
+          </div>
         </div>
       )}
-
-      {/* Risk */}
-      <div className="flex items-center gap-3 flex-shrink-0">
-        <div className="w-20">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-[var(--text-muted)]">Risk</span>
-            <span className="text-xs font-medium">{task.risk_score}%</span>
-          </div>
-          <div className="risk-bar">
-            <div
-              className="risk-bar-fill risk-bar-animated"
-              style={{
-                width: `${task.risk_score}%`,
-                background:
-                  task.risk_score >= 80 ? '#EF4444' :
-                  task.risk_score >= 60 ? '#F97316' :
-                  task.risk_score >= 30 ? '#F59E0B' : '#10B981',
-              }}
-            />
-          </div>
-        </div>
-        <RiskBadge level={task.risk_level} />
-      </div>
-
-      {/* Est */}
-      <div className="text-xs text-[var(--text-muted)] flex-shrink-0 w-12 text-right">
-        {task.estimated_hours}h
-      </div>
-
-      {/* Focus */}
-      <button
-        onClick={onFocus}
-        title="Enter focus mode"
-        className="w-7 h-7 rounded-lg bg-[var(--bg-elevated)] hover:bg-amber-500/10 hover:text-amber-400 text-[var(--text-muted)] flex items-center justify-center transition-all flex-shrink-0"
-      >
-        <Target size={13} />
-      </button>
     </div>
   );
 }

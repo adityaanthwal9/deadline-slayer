@@ -46,7 +46,12 @@ export function StreamingBrief({ autoStart = true }: Props) {
           <div className="w-7 h-7 rounded-lg bg-amber-500/20 flex items-center justify-center">
             <Zap size={14} className="text-amber-400" />
           </div>
-          <span className="text-sm font-medium">AI Mission Brief</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">AI Mission Brief</span>
+            <span className="text-[10px] font-semibold tracking-wider text-amber-400/70 border border-amber-500/20 bg-amber-500/5 px-1.5 py-0.5 rounded-full">
+              Gemini 2.5
+            </span>
+          </div>
           {streaming && (
             <div className="flex gap-0.5 items-center">
               {[0, 1, 2].map(i => (

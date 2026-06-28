@@ -175,6 +175,46 @@
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════
+   LIGHT THEME — activated by .light class on <html>
+═══════════════════════════════════════════════════════ */
+.light {
+  --background:        0 0% 98%;
+  --card:              0 0% 100%;
+  --surface:           220 14% 96%;
+  --surface-elevated:  220 14% 93%;
+  --foreground:        224 35% 10%;
+  --card-foreground:   224 35% 10%;
+  --muted:             220 13% 91%;
+  --muted-foreground:  220 9% 46%;
+  --accent:            220 14% 94%;
+  --accent-foreground: 224 35% 10%;
+  --border:            220 13% 88%;
+  --input:             0 0% 100%;
+  --ring:              38 96% 51%;
+}
+.light aside {
+  background: hsl(220, 20%, 97%) !important;
+  border-right-color: hsl(220, 13%, 88%) !important;
+}
+.light .glass {
+  background: rgba(255,255,255,0.85) !important;
+}
+.light .grid-bg {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.light .ds-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+}
+.light .skeleton {
+  background: linear-gradient(90deg,
+    hsl(220, 13%, 91%) 25%, hsl(220, 14%, 96%) 50%, hsl(220, 13%, 91%) 75%
+  );
+  background-size: 400px 100%;
+}
+
 /* ─── ANIMATIONS ────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
