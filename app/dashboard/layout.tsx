@@ -24,7 +24,7 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen" style={{ background: "var(--bg-base)" }}>
+    <div className="flex min-h-screen dark" style={{ background: "#09090F" }}>
 
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 flex flex-col" style={{
@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-auto" style={{ background: "var(--bg-base)" }}>
+      <main className="flex-1 overflow-auto" style={{ background: "#09090F" }}>
         <PageTransition>{children}</PageTransition>
       </main>
     </div>

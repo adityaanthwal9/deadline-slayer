@@ -21,12 +21,16 @@ import { useRealTimeRisk } from '@/hooks/useRealTimeRisk';
 import { format } from 'date-fns';
 
 // ─── Stat Card with animated counter ───────────────────
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+function StatCard({ label, value, color, bg, icon }: { label: string; value: number; color: string; bg: string; icon: string }) {
   const animated = useCountUp(value, 700);
   return (
-    <div className="ds-card ds-card-hover p-4">
-      <div className={`font-display text-2xl font-bold tabular-nums ${color}`}>{animated}</div>
-      <div className="text-xs text-[var(--text-secondary)] mt-0.5">{label}</div>
+    <div className="ds-card-hover p-4 rounded-xl" style={{
+      background: bg,
+      border: "1px solid rgba(255,255,255,0.06)",
+    }}>
+      <div className="text-lg mb-1">{icon}</div>
+      <div className="font-display text-3xl font-bold tabular-nums" style={{ color }}>{animated}</div>
+      <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{label}</div>
     </div>
   );
 }
@@ -407,14 +411,10 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-5 gap-3">
-        {[
-          { label: 'Active Tasks',  value: pendingTasks.length,   color: 'text-white' },
-          { label: 'At Risk',       value: criticalTasks.length,  color: 'text-red-400' },
-          { label: 'Done Today',    value: completedToday.length, color: 'text-green-400' },
-          { label: 'Total Tasks',   value: tasks.length,          color: 'text-blue-400' },
-        ].map((stat, i) => (
-          <StatCard key={i} {...stat} />
-        ))}
+        <StatCard label="Active Tasks"  value={pendingTasks.length}   color="#F0F0F8" bg="linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(124,58,237,0.1) 100%)" icon="⚡" />
+        <StatCard label="At Risk"       value={criticalTasks.length}  color="#F87171" bg="linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.05) 100%)" icon="🔥" />
+        <StatCard label="Done Today"    value={completedToday.length} color="#34D399" bg="linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.05) 100%)" icon="✅" />
+        <StatCard label="Total Tasks"   value={tasks.length}          color="#60A5FA" bg="linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)" icon="📋" />
         <StreakBadge tasks={tasks} />
       </div>
 
